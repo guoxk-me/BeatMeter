@@ -1,0 +1,222 @@
+# AGENTS.md
+
+Guidance for coding agents working in this repository.
+
+## Repository snapshot
+
+- App type: Expo + React Native mobile app
+- Language: TypeScript
+- Package manager: npm (`package-lock.json` is present)
+- TypeScript mode: strict (`tsconfig.json` sets `strict: true`)
+- Primary entry: `App.tsx`
+- Current feature focus: metronome playback, BPM controls, settings persistence, custom WAV import
+
+## Source layout
+
+- `App.tsx` — app composition, layout, BPM interactions, settings modal wiring
+- `src/components/` — UI components such as BPM display, playback controls, settings panel
+- `src/hooks/` — stateful app logic (`useMetronome`, `useSettings`, notifications)
+- `src/utils/` — WAV parsing, base64 helpers, custom sound file utilities
+- `src/constants/` — colors, presets, sound preset metadata, shared constants
+- `assets/` — icons, splash, bundled assets
+- `android/` — native Android project used by `build:apk`
+
+## Install
+
+Run from repo root:
+
+```bash
+npm install
+```
+
+## Available commands
+
+Use only commands that are actually configured in this repo.
+
+```bash
+npm run start
+npm run android
+npm run ios
+npm run web
+npm run build:apk
+npx tsc --noEmit
+```
+
+### What each command does
+
+- `npm run start` — starts the Expo dev server
+- `npm run android` — runs the app on Android via Expo native run flow
+- `npm run ios` — runs the app on iOS via Expo native run flow
+- `npm run web` — starts Expo in web mode
+- `npm run build:apk` — assembles a release APK from `android/`
+- `npx tsc --noEmit` — typecheck only; this is the current verification baseline
+
+## Lint / test status
+
+This repository does **not** currently have dedicated lint or automated test commands configured.
+
+- Lint command: **not configured**
+- Test command: **not configured**
+- Single-test command: **not available** because no test runner or test files are configured
+- Format command: **not configured**
+
+Do not invent commands like `npm run lint`, `npm test`, `vitest`, or `jest` unless you add and document that tooling in the same change.
+
+## Single-test guidance
+
+There is no single-test workflow yet.
+
+If future work adds a test framework:
+
+1. Add the repo-level test command to `package.json`
+2. Add a documented single-test example here
+3. Prefer file-scoped or test-name-scoped execution
+4. Keep the examples accurate to the installed toolchain
+
+Until then, use targeted manual verification plus `npx tsc --noEmit`.
+
+## Recommended verification workflow
+
+For most changes:
+
+1. Run `npx tsc --noEmit`
+2. Run the narrowest relevant app command:
+   - UI / interaction work: `npm run start` or `npm run web`
+   - Android-specific work: `npm run android`
+   - iOS-specific work: `npm run ios`
+   - APK / release packaging work: `npm run build:apk`
+3. Manually exercise only the feature area you changed
+4. Report exactly what you verified and what you did not verify
+
+## Manual verification guidance
+
+Because automated tests are not configured, agents should include manual checks when changes affect behavior.
+
+### Common flows to verify
+
+- BPM increases / decreases correctly
+- Tap tempo updates BPM sensibly after repeated taps
+- Play / pause / stop controls behave correctly
+- Beat indicator updates while playback is active
+- Settings modal opens, updates values, and closes correctly
+- Settings persist across app reload when changed
+- Sound enable / disable and volume updates behave correctly
+- Custom WAV import accepts valid `.wav` files and rejects invalid files
+- App handles recoverable failures with user-facing feedback instead of crashing
+
+### For audio or timing changes
+
+Also verify:
+
+- Playback starts without obvious delay regressions
+- Current beat stays visually aligned with playback
+- Background / foreground transitions do not leave stale timers or broken state
+- Haptics still trigger only when enabled
+
+### For storage or file handling changes
+
+Also verify:
+
+- AsyncStorage-backed settings still load on startup
+- Imported custom files are persisted and referenced correctly
+- Invalid or missing file data is handled gracefully
+
+## Code style conventions observed in this repo
+
+Follow existing local patterns unless the task explicitly changes them.
+
+- Use TypeScript everywhere
+- Keep strict typing intact; do not weaken types casually
+- Use semicolons
+- Use single quotes
+- Use 2-space indentation
+- Keep trailing commas in multiline literals, objects, arrays, and calls
+- Prefer named exports across `src/`; `App` is the main default export exception
+- Props and structured data commonly use `interface`
+- `React.FC` is used in existing component files; stay consistent within touched files
+- Keep `StyleSheet.create(...)` at the bottom of React Native component files
+- Use guard clauses for invalid or early-return paths
+- Use `useCallback`, `useMemo`, and refs when they support existing performance / lifecycle patterns
+- Reuse shared constants from `src/constants` rather than duplicating values
+- Keep recoverable runtime failures non-fatal; use `console.warn` and `Alert.alert` where appropriate
+
+## Implementation guidance
+
+- Read nearby files before editing so your changes match established patterns
+- Prefer small, targeted changes over broad refactors
+- Do not migrate tooling or architecture unless explicitly asked
+- Preserve Expo / React Native compatibility
+- Avoid introducing new dependencies unless necessary for the task
+- Keep user-facing copy consistent with existing language usage in the touched area
+- When adding shared logic, prefer `src/hooks/`, `src/utils/`, or `src/constants/` over bloating `App.tsx`
+
+## File-specific notes
+
+### `App.tsx`
+
+- Coordinates screen layout and composes core components
+- Wires BPM changes to both in-memory metronome state and persisted settings
+- Handles custom WAV import flow and user-visible alerts
+
+### `src/hooks/useMetronome.ts`
+
+- Timing-sensitive logic lives here
+- Be careful with intervals, timeouts, refs, and app state transitions
+- Clean up timers and players defensively
+
+### `src/hooks/useSettings.ts`
+
+- Settings are persisted through AsyncStorage
+- Preserve merge behavior when updating partial settings
+- Avoid introducing blocking startup behavior
+
+### `src/utils/customSound.ts` and `src/utils/wav.ts`
+
+- File handling and WAV validation are sensitive to malformed input
+- Prefer explicit validation and graceful failure paths
+
+## Commands and environment caveats
+
+- `build:apk` relies on local Android toolchain paths and Gradle under `android/`
+- Mobile run commands may require simulators, emulators, or native SDKs on the machine
+- If a command cannot run due to local environment limitations, say so clearly in your report
+
+## Cursor / Copilot rules status
+
+No repo-specific Cursor or Copilot instruction files are currently present.
+
+- `.cursor/rules/` — not present
+- `.cursorrules` — not present
+- `.github/copilot-instructions.md` — not present
+
+Do not claim repo-level Cursor/Copilot rules exist unless they are added later.
+
+## Reporting expectations for future agents
+
+When you finish a task, report concisely:
+
+1. What changed
+2. Which files were touched
+3. What commands you ran
+4. What manual checks you performed
+5. Any verification you could not perform
+6. Remaining risks, edge cases, or follow-ups
+
+Good example:
+
+- Changed custom WAV import validation in `App.tsx` and `src/utils/customSound.ts`
+- Ran `npx tsc --noEmit`
+- Manually verified valid WAV import, invalid file rejection, and settings persistence on Expo web
+- Did not verify iOS native behavior locally
+- Remaining risk: device-specific audio decoding differences may still need on-device validation
+
+## When adding new tooling
+
+If you introduce linting, formatting, or tests in a future change, update this file in the same PR to include:
+
+- Exact install / setup expectations
+- Repo-level commands
+- Single-test command examples
+- Any new agent-specific workflow changes
+
+Keep this document accurate and repository-specific.
