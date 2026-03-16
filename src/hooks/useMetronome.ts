@@ -23,7 +23,7 @@ export function useMetronome(
   initialBpm: number = DEFAULT_BPM,
   hapticEnabled: boolean = true,
   soundEnabled: boolean = true,
-  volume: number = 0.8,
+  volume: number = 1.0,
   soundPresetId: string,
   customSoundUri?: string | null,
 ) {
@@ -79,6 +79,7 @@ export function useMetronome(
     const existing = playerRef.current;
     playerRef.current = null;
     if (existing) {
+      try { existing.pause(); } catch { /* ignore */ }
       try { existing.remove(); } catch { /* ignore */ }
     }
   }, []);
@@ -127,6 +128,14 @@ export function useMetronome(
       scheduleNextHaptic();
     }, delay);
   }, [clearHapticTimer, computeBeatIndex, triggerHapticForBeat]);
+
+  // Bug 4 fix: restart haptic scheduler when haptic is re-enabled during playback
+  useEffect(() => {
+    if (hapticEnabled && isPlayingRef.current && appStateRef.current === 'active') {
+      scheduleNextHaptic();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hapticEnabled]);
 
   const ensureAudioMode = useCallback(async () => {
     await setAudioModeAsync({

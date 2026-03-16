@@ -19,7 +19,7 @@ const DEFAULT_SETTINGS: Settings = {
   bpm: DEFAULT_BPM,
   hapticEnabled: true,
   soundEnabled: true,
-  volume: 0.8,
+  volume: 1.0,
   soundPresetId: DEFAULT_SOUND_PRESET_ID,
   customSoundUri: null,
   customSoundName: null,
