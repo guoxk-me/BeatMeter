@@ -65,7 +65,7 @@ export function useSettings() {
     [saveSettings],
   );
   const setVolume = useCallback(
-    (volume: number) => saveSettings({ volume: Math.max(0, Math.min(1, volume)) }),
+    (volume: number) => saveSettings({ volume: Math.max(0, volume) }),
     [saveSettings],
   );
   const setSoundPresetId = useCallback(
