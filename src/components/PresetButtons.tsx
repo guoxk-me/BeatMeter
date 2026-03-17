@@ -2,16 +2,20 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { colors, presets } from '../constants';
 import type { Preset } from '../constants';
+import { useI18n, type LanguagePreference } from '../i18n';
 
 interface PresetButtonsProps {
   currentBpm: number;
   onSelectPreset: (preset: Preset) => void;
+  languagePreference: LanguagePreference;
 }
 
 export const PresetButtons: React.FC<PresetButtonsProps> = ({
   currentBpm,
   onSelectPreset,
+  languagePreference,
 }) => {
+  const { t } = useI18n(languagePreference);
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
@@ -32,10 +36,10 @@ export const PresetButtons: React.FC<PresetButtonsProps> = ({
 
               <View style={styles.content}>
                 <Text style={[styles.label, isActive && styles.labelActive]}>
-                  {preset.label}
+                  {t.presets[preset.id as keyof typeof t.presets]?.label ?? preset.label}
                 </Text>
                 <Text style={[styles.description, isActive && styles.descriptionActive]}>
-                  {preset.description}
+                  {t.presets[preset.id as keyof typeof t.presets]?.description ?? preset.description}
                 </Text>
               </View>
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DEFAULT_BPM } from '../constants';
 import { DEFAULT_SOUND_PRESET_ID } from '../constants/sounds';
+import type { LanguagePreference } from '../i18n';
 
 const SETTINGS_KEY = '@beatmeter_settings';
 
@@ -13,6 +14,7 @@ export interface Settings {
   soundPresetId: string;
   customSoundUri: string | null;
   customSoundName: string | null;
+  languagePreference: LanguagePreference;
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -23,6 +25,7 @@ const DEFAULT_SETTINGS: Settings = {
   soundPresetId: DEFAULT_SOUND_PRESET_ID,
   customSoundUri: null,
   customSoundName: null,
+  languagePreference: 'system',
 };
 
 export function useSettings() {
@@ -79,6 +82,10 @@ export function useSettings() {
     }),
     [saveSettings],
   );
+  const setLanguagePreference = useCallback(
+    (languagePreference: LanguagePreference) => saveSettings({ languagePreference }),
+    [saveSettings],
+  );
 
   return {
     settings,
@@ -89,6 +96,7 @@ export function useSettings() {
     setVolume,
     setSoundPresetId,
     setCustomSound,
+    setLanguagePreference,
     saveSettings,
   };
 }
