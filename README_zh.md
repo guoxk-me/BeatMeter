@@ -1,5 +1,7 @@
 # BeatMeter 节拍器
 
+> 纯 AI 生成的节拍器应用，使用 Expo 和 React Native 构建。专为跑步和健身爱好者设计，帮助在锻炼时保持精确的步频控制。
+
 <p align="center">
   <img src="./assets/icon.png" alt="BeatMeter Logo" width="120" />
 </p>
