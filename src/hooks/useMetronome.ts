@@ -141,7 +141,7 @@ export function useMetronome(
     await setAudioModeAsync({
       playsInSilentMode: true,
       shouldPlayInBackground: true,
-      interruptionMode: 'doNotMix',
+      interruptionMode: 'mixWithOthers',
     });
   }, []);
 
@@ -202,25 +202,53 @@ export function useMetronome(
   }, [clearHapticTimer, clearUiInterval]);
 
   const startPlayback = useCallback(async () => {
-    await ensureAudioMode();
-    const nextPlayer = await prepareLoopPlayer();
+    try {
+      await ensureAudioMode();
+    } catch (error) {
+      console.warn('[useMetronome] failed to apply audio mode:', error);
+      return;
+    }
+
+    let nextPlayer: AudioPlayer | null = null;
+
+    try {
+      nextPlayer = await prepareLoopPlayer();
+    } catch (error) {
+      console.warn('[useMetronome] failed to prepare loop player:', error);
+      return;
+    }
+
     if (!nextPlayer) return;
 
-    removeCurrentPlayer();
+    const previousPlayer = playerRef.current;
+    const startedAt = Date.now();
+
+    try {
+      nextPlayer.play();
+    } catch (error) {
+      console.warn('[useMetronome] failed to start playback:', error);
+      try { nextPlayer.remove(); } catch { /* ignore */ }
+      return;
+    }
+
     playerRef.current = nextPlayer;
-    playbackStartedAtRef.current = Date.now();
+    playbackStartedAtRef.current = startedAt;
     isPlayingRef.current = true;
     setIsPlaying(true);
     setCurrentBeat(0);
 
-    nextPlayer.play();
+    if (previousPlayer && previousPlayer !== nextPlayer) {
+      try { previousPlayer.pause(); } catch { /* ignore */ }
+      try { previousPlayer.remove(); } catch { /* ignore */ }
+    }
+
     triggerHapticForBeat(0);
 
     if (appStateRef.current === 'active') {
       startUiClock();
       scheduleNextHaptic();
     }
-  }, [ensureAudioMode, prepareLoopPlayer, removeCurrentPlayer, scheduleNextHaptic, startUiClock, triggerHapticForBeat]);
+  }, [ensureAudioMode, prepareLoopPlayer, scheduleNextHaptic, startUiClock, triggerHapticForBeat]);
 
   const play = useCallback(async () => {
     if (isPlayingRef.current) return;
@@ -261,13 +289,18 @@ export function useMetronome(
   // Lifecycle
   useEffect(() => {
     isMountedRef.current = true;
-    ensureAudioMode().catch(() => null);
+    ensureAudioMode().catch((error) => {
+      console.warn('[useMetronome] failed to apply audio mode on mount:', error);
+    });
 
     const subscription = AppState.addEventListener('change', (nextState) => {
       const previousState = appStateRef.current;
       appStateRef.current = nextState;
 
       if (nextState === 'active' && previousState !== 'active' && isPlayingRef.current) {
+        ensureAudioMode().catch((error) => {
+          console.warn('[useMetronome] failed to re-apply audio mode:', error);
+        });
         updateCurrentBeat();
         startUiClock();
         scheduleNextHaptic();
