@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BeatMeter",
-    "slug": "BeatMeter",
+    "slug": "beatmeter",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,13 +16,19 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.beatmeter.app",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "CFBundleDisplayName": "节拍器"
       }
     },
     "android": {
       "package": "com.beatmeter.app",
       "adaptiveIcon": {
-        "backgroundColor": "#0A0E1A"
+        "backgroundColor": "#0A0E1A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "permissions": [
         "android.permission.VIBRATE",
