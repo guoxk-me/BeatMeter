@@ -26,7 +26,7 @@ interface SettingsPanelProps {
   onImportCustomSound: () => void;
 }
 
-const volumeSteps = [0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5];
+const volumeSteps = [0, 0.5, 1, 1.5, 2, 2.5, 3];
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   visible,
