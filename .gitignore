@@ -9,14 +9,27 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Native local and generated caches
 .kotlin/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/.cxx/
+android/local.properties
+android/app/debug.keystore
+ios/build/
+ios/DerivedData/
+ios/Pods/
+ios/.xcode.env.local
+
+# Native signing and private credentials
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.pem
 
 # Metro
 .metro-health-check*
@@ -28,7 +41,6 @@ yarn-error.*
 
 # macOS
 .DS_Store
-*.pem
 
 # local env files
 .env*.local
@@ -36,76 +48,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android/*
-!/android/app/
-/android/app/*
-!/android/app/src/
-/android/app/src/*
-!/android/app/src/main/
-/android/app/src/main/*
-!/android/app/src/main/res/
-/android/app/src/main/res/*
-!/android/app/src/main/res/drawable/
-!/android/app/src/main/res/drawable-hdpi/
-!/android/app/src/main/res/drawable-mdpi/
-!/android/app/src/main/res/drawable-xhdpi/
-!/android/app/src/main/res/drawable-xxhdpi/
-!/android/app/src/main/res/drawable-xxxhdpi/
-!/android/app/src/main/res/mipmap-anydpi-v26/
-!/android/app/src/main/res/mipmap-hdpi/
-!/android/app/src/main/res/mipmap-mdpi/
-!/android/app/src/main/res/mipmap-xhdpi/
-!/android/app/src/main/res/mipmap-xxhdpi/
-!/android/app/src/main/res/mipmap-xxxhdpi/
-!/android/app/src/main/res/values/
-!/android/app/src/main/res/values-en/
-!/android/app/src/main/res/values-zh/
-/android/app/src/main/res/drawable/*
-!/android/app/src/main/res/drawable/ic_launcher_background.xml
-/android/app/src/main/res/drawable-hdpi/*
-!/android/app/src/main/res/drawable-hdpi/splashscreen_logo.png
-/android/app/src/main/res/drawable-mdpi/*
-!/android/app/src/main/res/drawable-mdpi/splashscreen_logo.png
-/android/app/src/main/res/drawable-xhdpi/*
-!/android/app/src/main/res/drawable-xhdpi/splashscreen_logo.png
-/android/app/src/main/res/drawable-xxhdpi/*
-!/android/app/src/main/res/drawable-xxhdpi/splashscreen_logo.png
-/android/app/src/main/res/drawable-xxxhdpi/*
-!/android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png
-/android/app/src/main/res/mipmap-anydpi-v26/*
-!/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
-!/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
-/android/app/src/main/res/mipmap-hdpi/*
-!/android/app/src/main/res/mipmap-hdpi/ic_launcher.webp
-!/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.webp
-!/android/app/src/main/res/mipmap-hdpi/ic_launcher_monochrome.webp
-!/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp
-/android/app/src/main/res/mipmap-mdpi/*
-!/android/app/src/main/res/mipmap-mdpi/ic_launcher.webp
-!/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.webp
-!/android/app/src/main/res/mipmap-mdpi/ic_launcher_monochrome.webp
-!/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp
-/android/app/src/main/res/mipmap-xhdpi/*
-!/android/app/src/main/res/mipmap-xhdpi/ic_launcher.webp
-!/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.webp
-!/android/app/src/main/res/mipmap-xhdpi/ic_launcher_monochrome.webp
-!/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp
-/android/app/src/main/res/mipmap-xxhdpi/*
-!/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp
-!/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.webp
-!/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_monochrome.webp
-!/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp
-/android/app/src/main/res/mipmap-xxxhdpi/*
-!/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp
-!/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp
-!/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_monochrome.webp
-!/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp
-/android/app/src/main/res/values/*
-!/android/app/src/main/res/values/colors.xml
-!/android/app/src/main/res/values/strings.xml
-/android/app/src/main/res/values-en/*
-!/android/app/src/main/res/values-en/strings.xml
-/android/app/src/main/res/values-zh/*
-!/android/app/src/main/res/values-zh/strings.xml
+# Bundle artifacts
+*.jsbundle
+android/app/src/main/assets/index.android.bundle
