@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">BeatMeter</string>
+  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
+</resources>

@@ -12,7 +12,7 @@
 **Goals:**
 - 实现 App 名称国际化：中文"节拍器" + 英文"BeatMeter"
 - 生成一套完整的品牌图标（适配 iOS、Android、Web）
-- 设计简洁专业的启动画面，包含 Logo 和名称
+- 设计简洁专业的启动画面
 - 更新相关配置文件
 
 **Non-Goals:**
@@ -47,16 +47,15 @@
 
 ### 3. 启动画面设计
 
-**决定**：品牌 Logo + 中英文名称 + 简洁渐入
+**决定**：使用独立的静态 Logo 启动画面，不额外加入文字
 
 **布局**：
 ```
 ┌─────────────────────────┐
 │                         │
+│                         │
 │      [Logo 图标]        │
 │                         │
-│        节拍器           │
-│       BeatMeter         │
 │                         │
 └─────────────────────────┘
 ```
@@ -65,13 +64,16 @@
 - 使用 Expo splash screen 配置
 - 背景色：#0A0E1A（与现有主题一致）
 - 静态图片方式，兼容性好
+- 基于 `assets/logo.png` 生成专用 `splash-icon.png`，增大留白避免启动页过满
 
 ### 4. 配置文件更新
 
-更新 `app.json` 中的字段：
-- `name`: "节拍器"（中文显示名）
+更新 `app.json` / 平台资源中的字段：
+- `name`: "BeatMeter"（默认显示名 / fallback）
 - `slug`: "beatmeter"（URL/内部标识）
 - `ios.infoPlist.CFBundleDisplayName`: "节拍器"
+- Android `res/values-zh/strings.xml`: "节拍器"
+- Android `res/values-en/strings.xml`: "BeatMeter"
 
 ## Risks / Trade-offs
 
@@ -85,4 +87,4 @@
 
 - [ ] 图标设计风格：是更偏向音乐元素还是科技感？
 - [ ] 启动画面是否需要添加渐入动画？（静态已可满足需求）
-- [ ] 是否需要为不同语言准备不同的启动画面？
+- [x] 是否需要为不同语言准备不同的启动画面？（当前不需要）
