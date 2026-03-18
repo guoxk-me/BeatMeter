@@ -68,10 +68,60 @@ BeatMeter 是一款专为跑步和健身设计的步频控制节拍器应用。�
 
 ### 环境要求
 
-- Node.js >= 18
-- npm >= 9
-- Android Studio (Android 开发)
-- Xcode (iOS 开发，仅 macOS)
+| 组件 | macOS | Windows | 备注 |
+|------|-------|---------|------|
+| Node.js >= 18 | ✅ | ✅ | 使用 nvm 或官方安装包 |
+| npm >= 9 | ✅ | ✅ | 随 Node.js 一起安装 |
+| Android Studio | ✅ | ✅ | 用于 Android 构建 |
+| Xcode | ✅ (仅 macOS) | ❌ | 用于 iOS 构建 |
+| Java JDK 17+ | ✅ | ✅ | 详见下方配置 |
+
+### 环境配置
+
+#### macOS 系统
+
+```bash
+# 如果没有 Homebrew，先安装
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 安装 JDK 17
+brew install openjdk@17
+
+# 配置环境变量（添加到 ~/.zshrc 永久生效）
+export JAVA_HOME="$(brew --prefix)/opt/openjdk@17"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+
+# 从 https://developer.android.com/studio 安装 Android Studio
+# 安装时勾选 "Android SDK" 选项
+
+# 安装完成后，打开 Android Studio → Tools → SDK Manager
+# 安装 "Android SDK Build-Tools" 和 "Android SDK Platform-Tools"
+```
+
+#### Windows 系统
+
+```powershell
+# 从 https://adoptium.net/temurin/releases/ 安装 JDK 17
+# 或使用 winget: winget install EclipseAdoptium.Temurin.17.JDK
+
+# 设置环境变量（系统属性 → 环境变量）
+# JAVA_HOME = C:\Program Files\Eclipse Adoptium\jdk-17.0.x-x
+# ANDROID_HOME = C:\Users\<用户名>\AppData\Local\Android\Sdk
+# ANDROID_SDK_ROOT = %ANDROID_HOME%
+
+# 添加到 PATH：
+# %JAVA_HOME%\bin
+# %ANDROID_HOME%\platform-tools
+# %ANDROID_HOME%\cmdline-tools\latest\bin
+
+# 从 https://developer.android.com/studio 安装 Android Studio
+# 安装时勾选 "Android SDK" 选项
+
+# 安装完成后，打开 Android Studio → Tools → SDK Manager
+# 安装 "Android SDK Build-Tools" 和 "Android SDK Platform-Tools"
+```
 
 ### 安装步骤
 
@@ -97,11 +147,28 @@ npm run ios
 ### 构建 APK
 
 ```bash
+# Android Debug APK
+npm run build:android
+
 # Android Release APK
 npm run build:apk
 ```
 
-构建完成的 APK 位于 `android/app/build/outputs/apk/release/` 目录。
+构建完成的 APK 位于：
+- Debug 版：`android/app/build/outputs/apk/debug/`
+- Release 版：`android/app/build/outputs/apk/release/`
+
+### 构建 iOS 应用
+
+```bash
+# 安装 CocoaPods 依赖（仅 macOS）
+cd ios && pod install && cd ..
+
+# 在 iOS 模拟器运行（仅 macOS）
+npm run ios
+```
+
+> **注意**：iOS 构建仅在 macOS 上支持，需要安装 Xcode。
 
 ---
 
@@ -166,14 +233,60 @@ BeatMeter/
 
 ## 📋 可用命令
 
-| 命令 | 说明 |
-|------|------|
-| `npm run start` | 启动 Expo 开发服务器 |
-| `npm run android` | 运行 Android 应用 |
-| `npm run ios` | 运行 iOS 应用 (仅 macOS) |
-| `npm run web` | 在浏览器中运行 (仅开发预览) |
-| `npm run build:apk` | 构建 Android Release APK |
-| `npx tsc --noEmit` | TypeScript 类型检查 |
+| 命令 | 平台 | 说明 |
+|------|------|------|
+| `npm run start` | 全部 | 启动 Expo 开发服务器 |
+| `npm run android` | 全部 | 运行 Android 应用 |
+| `npm run ios` | 仅 macOS | 运行 iOS 应用 |
+| `npm run web` | 全部 | 在浏览器运行（开发预览） |
+| `npm run build:android` | 全部 | 构建 Android Debug APK |
+| `npm run build:apk` | 全部 | 构建 Android Release APK |
+| `npx tsc --noEmit` | 全部 | TypeScript 类型检查 |
+
+## 🔧 故障排除
+
+### 找不到 Java
+
+如果看到 "Unable to locate a Java Runtime"，请设置 JAVA_HOME 环境变量：
+
+**macOS:**
+```bash
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+```
+
+**Windows:**
+```powershell
+set JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.x-x
+```
+
+### 找不到 Android SDK
+
+如果找不到 Android SDK，请设置 ANDROID_HOME：
+
+**macOS:**
+```bash
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+```
+
+**Windows:**
+```powershell
+set ANDROID_HOME=C:\Users\<用户名>\AppData\Local\Android\Sdk
+```
+
+### Windows 构建失败
+
+如果 Windows 上构建失败并出现权限错误，请尝试：
+```powershell
+# 以管理员身份运行 PowerShell
+# 或使用: npx react-native bundle --platform android ...
+```
+
+### iOS 构建仅支持 macOS
+
+iOS 构建需要：
+- macOS 操作系统
+- 安装 Xcode
+- 安装 Xcode Command Line Tools
 
 ---
 

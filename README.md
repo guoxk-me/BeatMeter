@@ -68,10 +68,60 @@ BeatMeter is a tempo control metronome app designed specifically for running and
 
 ### Requirements
 
-- Node.js >= 18
-- npm >= 9
-- Android Studio (for Android development)
-- Xcode (for iOS development, macOS only)
+| Component | macOS | Windows | Notes |
+|-----------|-------|---------|-------|
+| Node.js >= 18 | ✅ | ✅ | Use nvm or official installer |
+| npm >= 9 | ✅ | ✅ | Comes with Node.js |
+| Android Studio | ✅ | ✅ | For Android builds |
+| Xcode | ✅ (macOS only) | ❌ | For iOS builds |
+| Java JDK 17+ | ✅ | ✅ | See setup below |
+
+### Environment Setup
+
+#### macOS
+
+```bash
+# Install Homebrew if needed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install JDK 17
+brew install openjdk@17
+
+# Set JAVA_HOME (add to ~/.zshrc for permanent setup)
+export JAVA_HOME="$(brew --prefix)/opt/openjdk@17"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+
+# Install Android Studio from https://developer.android.com/studio
+# During installation, check "Android SDK" option
+
+# After installation, open Android Studio → Tools → SDK Manager
+# Install "Android SDK Build-Tools" and "Android SDK Platform-Tools"
+```
+
+#### Windows
+
+```powershell
+# Install JDK 17 from https://adoptium.net/temurin/releases/
+# Or use winget: winget install EclipseAdoptium.Temurin.17.JDK
+
+# Set environment variables (System Properties → Environment Variables)
+# JAVA_HOME = C:\Program Files\Eclipse Adoptium\jdk-17.0.x-x
+# ANDROID_HOME = C:\Users\<YourName>\AppData\Local\Android\Sdk
+# ANDROID_SDK_ROOT = %ANDROID_HOME%
+
+# Add to PATH:
+# %JAVA_HOME%\bin
+# %ANDROID_HOME%\platform-tools
+# %ANDROID_HOME%\cmdline-tools\latest\bin
+
+# Install Android Studio from https://developer.android.com/studio
+# During installation, check "Android SDK" option
+
+# After installation, open Android Studio → Tools → SDK Manager
+# Install "Android SDK Build-Tools" and "Android SDK Platform-Tools"
+```
 
 ### Installation
 
@@ -97,11 +147,28 @@ npm run ios
 ### Build APK
 
 ```bash
+# Android Debug APK
+npm run build:android
+
 # Android Release APK
 npm run build:apk
 ```
 
-The built APK is located in `android/app/build/outputs/apk/release/`.
+The built APK is located in:
+- Debug: `android/app/build/outputs/apk/debug/`
+- Release: `android/app/build/outputs/apk/release/`
+
+### Build iOS App
+
+```bash
+# Install CocoaPods dependencies (macOS only)
+cd ios && pod install && cd ..
+
+# Run on iOS Simulator (macOS only)
+npm run ios
+```
+
+> **Note**: iOS builds are only supported on macOS with Xcode installed.
 
 ---
 
@@ -166,14 +233,60 @@ BeatMeter/
 
 ## 📋 Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run start` | Start Expo development server |
-| `npm run android` | Run Android app |
-| `npm run ios` | Run iOS app (macOS only) |
-| `npm run web` | Run in browser (dev preview only) |
-| `npm run build:apk` | Build Android Release APK |
-| `npx tsc --noEmit` | TypeScript type checking |
+| Command | Platform | Description |
+|---------|----------|-------------|
+| `npm run start` | All | Start Expo development server |
+| `npm run android` | All | Run Android app (device/emulator) |
+| `npm run ios` | macOS only | Run iOS app (simulator) |
+| `npm run web` | All | Run in browser (dev preview) |
+| `npm run build:android` | All | Build Android Debug APK |
+| `npm run build:apk` | All | Build Android Release APK |
+| `npx tsc --noEmit` | All | TypeScript type checking |
+
+## 🔧 Troubleshooting
+
+### Java Not Found
+
+If you see "Unable to locate a Java Runtime", set the JAVA_HOME environment variable:
+
+**macOS:**
+```bash
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+```
+
+**Windows:**
+```powershell
+set JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.x-x
+```
+
+### Android SDK Not Found
+
+If Android SDK is not found, set ANDROID_HOME:
+
+**macOS:**
+```bash
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+```
+
+**Windows:**
+```powershell
+set ANDROID_HOME=C:\Users\<YourName>\AppData\Local\Android\Sdk
+```
+
+### Build Fails on Windows
+
+If build fails on Windows with permission errors, try:
+```powershell
+# Run PowerShell as Administrator
+# Or use: npx react-native bundle --platform android ...
+```
+
+### iOS Build Only Works on macOS
+
+iOS builds require:
+- macOS operating system
+- Xcode installed
+- Xcode Command Line Tools
 
 ---
 

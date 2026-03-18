@@ -203,16 +203,62 @@ Follow existing local patterns unless the task explicitly changes them.
 
 ### Environment Setup
 
-If commands fail, ensure environment variables are set:
+#### macOS
 
 ```bash
-# macOS (add to ~/.zshrc or ~/.bash_profile)
-export JAVA_HOME="/path/to/jdk"
+# Install JDK 17 via Homebrew
+brew install openjdk@17
+
+# Set environment variables in ~/.zshrc
+export JAVA_HOME="$(brew --prefix)/opt/openjdk@17"
 export ANDROID_HOME="$HOME/Library/Android/sdk"
-export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+
+# Then reload: source ~/.zshrc
 ```
 
-If a command cannot run due to local environment limitations, say so clearly in your report.
+#### Windows
+
+```powershell
+# Install JDK 17 from https://adoptium.net/temurin/releases/
+# Or use winget: winget install EclipseAdoptium.Temurin.17.JDK
+
+# Set environment variables in System Properties → Environment Variables
+# JAVA_HOME = C:\Program Files\Eclipse Adoptium\jdk-17.0.x-x
+# ANDROID_HOME = C:\Users\<YourName>\AppData\Local\Android\Sdk
+# ANDROID_SDK_ROOT = %ANDROID_HOME%
+
+# Add to PATH:
+# %JAVA_HOME%\bin
+# %ANDROID_HOME%\platform-tools
+```
+
+#### Android Studio Setup (Both Platforms)
+
+1. Download Android Studio from https://developer.android.com/studio
+2. During installation, ensure "Android SDK" option is checked
+3. After installation, open Android Studio → Tools → SDK Manager
+4. Install:
+   - Android SDK Build-Tools (latest)
+   - Android SDK Platform-Tools
+   - Android SDK Platform (latest, e.g., API 35)
+
+### Platform-Specific Notes
+
+- **iOS builds**: Only work on macOS with Xcode installed
+- **Android builds**: Work on both macOS and Windows
+- **Web builds**: Work on all platforms via `npm run web`
+
+### Alternative: Using system Java on macOS
+
+If Android Studio is installed, you can use its bundled JDK:
+
+```bash
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+```
+
+This is the default used by the npm scripts in `package.json`.
 
 ## Cursor / Copilot rules status
 
@@ -242,6 +288,57 @@ Good example:
 - Manually verified valid WAV import, invalid file rejection, and settings persistence on Expo web
 - Did not verify iOS native behavior locally
 - Remaining risk: device-specific audio decoding differences may still need on-device validation
+
+## Setting up on a new machine
+
+This project includes native Android and iOS project files, so it can be built on a new machine after cloning.
+
+### Prerequisites
+
+| Component | macOS | Windows | Linux |
+|-----------|-------|---------|-------|
+| Node.js >= 18 | ✅ | ✅ | ✅ |
+| npm >= 9 | ✅ | ✅ | ✅ |
+| Android Studio | ✅ | ✅ | ✅ |
+| Xcode | ✅ (macOS only) | ❌ | ❌ |
+| CocoaPods | ✅ (macOS only) | ❌ | ❌ |
+
+### Steps to build after clone
+
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd BeatMeter
+
+# 2. Install dependencies
+npm install
+
+# 3. Android: Build APK (both platforms work)
+npm run build:apk
+
+# 4. iOS: Install pods and build (macOS only)
+cd ios && pod install && cd ..
+npm run ios
+```
+
+### Common issues on new machines
+
+1. **"Unable to locate Java Runtime"** - Set JAVA_HOME, see Environment Setup section above
+2. **"Android SDK not found"** - Set ANDROID_HOME, see Environment Setup section above
+3. **iOS build fails** - Only works on macOS with Xcode installed
+
+### Why native files are committed
+
+This repository commits native project files (`android/`, `ios/`) so that:
+- New contributors don't need to run `expo prebuild`
+- CI/CD pipelines can build without additional setup
+- The project works immediately after clone
+
+Files that should NOT be committed (already in .gitignore):
+- Build outputs (`android/app/build/`, `ios/build/`)
+- Caches (`android/.gradle/`, `ios/DerivedData/`)
+- Pods (`ios/Pods/`)
+- Signing keys (`android/app/debug.keystore`)
 
 ## When adding new tooling
 
