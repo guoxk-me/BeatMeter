@@ -19,6 +19,7 @@ import type { Preset } from './src/constants/presets';
 import { MIN_BPM, MAX_BPM } from './src/constants';
 import { isLikelyWavFile, persistCustomWav } from './src/utils/customSound';
 import { readWavFileAsMonoAudio } from './src/utils/wav';
+import { useI18n, getSoundPresetI18n } from './src/i18n';
 
 const clamp = (value: number, min: number, max: number) => {
   if (max < min) return max;
@@ -33,6 +34,7 @@ function AppScreen() {
     settings, isLoaded,
     setHapticEnabled, setSoundEnabled, setVolume,
     setBpm: persistBpm, setSoundPresetId, setCustomSound,
+    setLanguagePreference,
   } = useSettings();
 
   const effectiveSoundPresetId = useMemo(
@@ -41,6 +43,8 @@ function AppScreen() {
       : settings.soundPresetId),
     [settings.customSoundUri, settings.soundPresetId],
   );
+
+  const { t } = useI18n(settings.languagePreference);
 
   const { bpm, isPlaying, currentBeat, toggle, stop, setBpm } = useMetronome(
     settings.bpm,
@@ -87,19 +91,19 @@ function AppScreen() {
       if (result.canceled || !result.assets?.length) return;
       const asset = result.assets[0];
       if (!isLikelyWavFile(asset)) {
-        Alert.alert('仅支持 WAV', '请选择 .wav 格式的音效文件。');
+        Alert.alert(t.alertWavOnlyTitle, t.alertWavOnlyMessage);
         return;
       }
       await readWavFileAsMonoAudio(asset.uri);
       const imported = await persistCustomWav(asset);
       setCustomSound(imported.uri, imported.name);
       setSoundPresetId(CUSTOM_SOUND_PRESET_ID);
-      Alert.alert('导入成功', `已切换为自定义音效：${imported.name}`);
+      Alert.alert(t.alertImportSuccessTitle, t.alertImportSuccessMessage(imported.name));
     } catch (error) {
       console.warn('[App] custom sound import failed:', error);
-      Alert.alert('导入失败', '无法使用这个 WAV 文件，请确认文件可用且为标准 WAV 格式。');
+      Alert.alert(t.alertImportFailTitle, t.alertImportFailMessage);
     }
-  }, [setCustomSound, setSoundPresetId]);
+  }, [setCustomSound, setSoundPresetId, t]);
 
   if (!isLoaded) return null;
 
@@ -128,6 +132,7 @@ function AppScreen() {
             onTap={handleTap} onSettingsPress={() => setSettingsVisible(true)}
             onBpmChange={handleBpmChange}
             availableHeight={topSectionHeight}
+            tapBpmLabel={t.tapBpm}
           />
         </View>
 
@@ -135,13 +140,13 @@ function AppScreen() {
 
         <View style={[styles.bottomGroup, { paddingBottom: bottomDock }]}> 
           <View style={styles.divider} />
-          <PresetButtons currentBpm={bpm} onSelectPreset={handlePresetSelect} />
+          <PresetButtons currentBpm={bpm} onSelectPreset={handlePresetSelect} languagePreference={settings.languagePreference} />
           <View style={styles.divider} />
           <PlaybackControls
             isPlaying={isPlaying}
             onPlayPause={toggle}
             onStop={stop}
-            soundLabel={getSoundPresetLabel(effectiveSoundPresetId, settings.customSoundName)}
+            soundLabel={getSoundPresetI18n(effectiveSoundPresetId, settings.customSoundName, t)}
           />
         </View>
       </View>
@@ -160,6 +165,9 @@ function AppScreen() {
         onVolumeChange={handleVolumeChange}
         onSoundPresetChange={handleSoundPresetChange}
         onImportCustomSound={handleImportCustomSound}
+        t={t}
+        languagePreference={settings.languagePreference}
+        onLanguageChange={setLanguagePreference}
       />
     </SafeAreaView>
   );

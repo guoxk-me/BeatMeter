@@ -1,5 +1,7 @@
 # BeatMeter
 
+> A pure AI-generated metronome app built with Expo and React Native. Designed for running and fitness enthusiasts who need precise tempo control during workouts.
+
 <p align="center">
   <img src="./assets/icon.png" alt="BeatMeter Logo" width="120" />
 </p>

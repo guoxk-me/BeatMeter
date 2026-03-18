@@ -15,6 +15,7 @@ interface BPMDisplayProps {
   onSettingsPress: () => void;
   onBpmChange: (value: number) => void;
   availableHeight?: number;
+  tapBpmLabel?: string;
 }
 
 export const BPMDisplay: React.FC<BPMDisplayProps> = ({
@@ -25,6 +26,7 @@ export const BPMDisplay: React.FC<BPMDisplayProps> = ({
   onSettingsPress,
   onBpmChange,
   availableHeight,
+  tapBpmLabel,
 }) => {
   const pulseScale   = useRef(new Animated.Value(1)).current;
   const pulseOpacity = useRef(new Animated.Value(0)).current;
@@ -76,7 +78,7 @@ export const BPMDisplay: React.FC<BPMDisplayProps> = ({
           hitSlop={8}
         >
           <Ionicons name="hand-left-outline" size={14} color={colors.primary} style={styles.topBtnIcon} />
-          <Text style={styles.topBtnText}>TAP BPM</Text>
+          <Text style={styles.topBtnText}>{tapBpmLabel ?? 'TAP BPM'}</Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [styles.topBtn, styles.settingsBtn, pressed && styles.topBtnPressed]}

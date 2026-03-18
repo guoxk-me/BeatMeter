@@ -35,20 +35,24 @@ Use only commands that are actually configured in this repo.
 
 ```bash
 npm run start
+npm run prebuild
 npm run android
 npm run ios
 npm run web
+npm run build:android
 npm run build:apk
 npx tsc --noEmit
 ```
 
 ### What each command does
 
-- `npm run start` — starts the Expo dev server
-- `npm run android` — runs the app on Android via Expo native run flow
-- `npm run ios` — runs the app on iOS via Expo native run flow
-- `npm run web` — starts Expo in web mode
-- `npm run build:apk` — assembles a release APK from `android/`
+- `npm run start` — starts the Expo dev server (for development)
+- `npm run prebuild` — generates native iOS and Android projects using Expo prebuild
+- `npm run android` — runs the app on Android device/emulator (requires Android SDK + emulator/device)
+- `npm run ios` — runs the app on iOS simulator (requires Xcode + simulator)
+- `npm run web` — starts Expo in web mode (for quick testing)
+- `npm run build:android` — builds a debug APK (no emulator/device required)
+- `npm run build:apk` — builds a release APK (no emulator/device required)
 - `npx tsc --noEmit` — typecheck only; this is the current verification baseline
 
 ## Lint / test status
@@ -82,8 +86,9 @@ For most changes:
 1. Run `npx tsc --noEmit`
 2. Run the narrowest relevant app command:
    - UI / interaction work: `npm run start` or `npm run web`
-   - Android-specific work: `npm run android`
-   - iOS-specific work: `npm run ios`
+   - Android build only: `npm run build:android`
+   - Android device/emulator: `npm run android`
+   - iOS simulator: `npm run ios`
    - APK / release packaging work: `npm run build:apk`
 3. Manually exercise only the feature area you changed
 4. Report exactly what you verified and what you did not verify
@@ -177,9 +182,37 @@ Follow existing local patterns unless the task explicitly changes them.
 
 ## Commands and environment caveats
 
-- `build:apk` relies on local Android toolchain paths and Gradle under `android/`
-- Mobile run commands may require simulators, emulators, or native SDKs on the machine
-- If a command cannot run due to local environment limitations, say so clearly in your report
+### Build Commands (no device/emulator required)
+
+- `npm run build:android` — generates debug APK at `android/app/build/outputs/apk/debug/`
+- `npm run build:apk` — generates release APK at `android/app/build/outputs/apk/release/`
+- Requires: JAVA_HOME and ANDROID_HOME environment variables set
+
+### Run Commands (device/emulator required)
+
+- `npm run android` — builds and runs on Android device/emulator
+  - Requires: Android SDK installed, device connected OR emulator running
+- `npm run ios` — builds and runs on iOS simulator
+  - Requires: macOS with Xcode installed, iOS simulator available
+
+### Development Commands
+
+- `npm run start` — starts Expo dev server (QR code for mobile, or browser for web)
+- `npm run web` — starts Expo in web mode (runs in browser)
+- `npm run prebuild` — regenerates native iOS/Android projects (run after adding new native modules)
+
+### Environment Setup
+
+If commands fail, ensure environment variables are set:
+
+```bash
+# macOS (add to ~/.zshrc or ~/.bash_profile)
+export JAVA_HOME="/path/to/jdk"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
+```
+
+If a command cannot run due to local environment limitations, say so clearly in your report.
 
 ## Cursor / Copilot rules status
 

@@ -8,7 +8,8 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
-import { colors, CUSTOM_SOUND_PRESET_ID, getSoundPresetLabel, SOUND_PRESETS } from '../constants';
+import { colors, CUSTOM_SOUND_PRESET_ID, SOUND_PRESETS } from '../constants';
+import { getSoundPresetI18n, type Translations, type LanguagePreference } from '../i18n';
 
 interface SettingsPanelProps {
   visible: boolean;
@@ -24,9 +25,18 @@ interface SettingsPanelProps {
   onVolumeChange: (v: number) => void;
   onSoundPresetChange: (soundPresetId: string) => void;
   onImportCustomSound: () => void;
+  t: Translations;
+  languagePreference: LanguagePreference;
+  onLanguageChange: (v: LanguagePreference) => void;
 }
 
-const volumeSteps = [0.2, 0.4, 0.6, 0.8, 1.0];
+const volumeSteps = [0, 1, 2, 3, 4, 5, 6];
+
+const LANGUAGE_OPTIONS: Array<{ value: LanguagePreference; labelKey: keyof Translations }> = [
+  { value: 'system', labelKey: 'languageFollowSystem' },
+  { value: 'zh',     labelKey: 'languageChinese' },
+  { value: 'en',     labelKey: 'languageEnglish' },
+];
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   visible,
@@ -42,12 +52,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onVolumeChange,
   onSoundPresetChange,
   onImportCustomSound,
+  t,
+  languagePreference,
+  onLanguageChange,
 }) => {
   const currentStep = volumeSteps.reduce((prev, curr) => (
     Math.abs(curr - volume) < Math.abs(prev - volume) ? curr : prev
   ));
 
-  const activeSoundLabel = getSoundPresetLabel(soundPresetId, customSoundName);
+  const activeSoundLabel = getSoundPresetI18n(soundPresetId, customSoundName, t);
 
   return (
     <Modal
@@ -61,7 +74,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       <View style={styles.sheet}>
         <View style={styles.handle} />
-        <Text style={styles.title}>设置</Text>
+        <Text style={styles.title}>{t.settings}</Text>
 
         <ScrollView
           style={styles.scrollView}
@@ -69,17 +82,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>音效</Text>
+            <Text style={styles.sectionTitle}>{t.sectionSound}</Text>
 
             <View style={styles.soundSummary}>
-              <Text style={styles.summaryLabel}>当前音效</Text>
+              <Text style={styles.summaryLabel}>{t.currentSound}</Text>
               <Text style={styles.summaryValue}>{activeSoundLabel}</Text>
-              <Text style={styles.summarySub}>后台播放将使用当前选中的音效生成循环轨道</Text>
+              <Text style={styles.summarySub}>{t.backgroundTrackNote}</Text>
             </View>
 
             <View style={styles.chipWrap}>
               {SOUND_PRESETS.map((preset) => {
                 const active = soundPresetId === preset.id;
+                const label = t.soundPresets[preset.id]?.label ?? preset.label;
+                const description = t.soundPresets[preset.id]?.description ?? preset.description;
 
                 return (
                   <Pressable
@@ -91,8 +106,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     ]}
                     onPress={() => onSoundPresetChange(preset.id)}
                   >
-                    <Text style={[styles.soundChipLabel, active && styles.soundChipLabelActive]}>{preset.label}</Text>
-                    <Text style={[styles.soundChipSub, active && styles.soundChipSubActive]}>{preset.description}</Text>
+                    <Text style={[styles.soundChipLabel, active && styles.soundChipLabelActive]}>{label}</Text>
+                    <Text style={[styles.soundChipSub, active && styles.soundChipSubActive]}>{description}</Text>
                   </Pressable>
                 );
               })}
@@ -111,14 +126,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     soundPresetId === CUSTOM_SOUND_PRESET_ID && styles.soundChipLabelActive,
                   ]}
                   >
-                    自定义 WAV
+                    {t.customWav}
                   </Text>
                   <Text style={[
                     styles.soundChipSub,
                     soundPresetId === CUSTOM_SOUND_PRESET_ID && styles.soundChipSubActive,
                   ]}
                   >
-                    {customSoundName || '已导入自定义音效'}
+                    {customSoundName || t.importedCustomSound}
                   </Text>
                 </Pressable>
               )}
@@ -128,15 +143,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               style={({ pressed }) => [styles.importButton, pressed && styles.importButtonPressed]}
               onPress={onImportCustomSound}
             >
-              <Text style={styles.importButtonText}>{hasCustomSound ? '重新导入自定义 WAV' : '导入自定义 WAV'}</Text>
+              <Text style={styles.importButtonText}>
+                {hasCustomSound ? t.reimportCustomWav : t.importCustomWav}
+              </Text>
             </Pressable>
           </View>
 
           <View style={styles.card}>
             <View style={styles.row}>
               <View style={styles.rowTextWrap}>
-                <Text style={styles.rowLabel}>触觉反馈</Text>
-                <Text style={styles.rowSub}>仅在前台提供每拍震动提示</Text>
+                <Text style={styles.rowLabel}>{t.hapticFeedback}</Text>
+                <Text style={styles.rowSub}>{t.hapticFeedbackSub}</Text>
               </View>
               <Switch
                 value={hapticEnabled}
@@ -151,8 +168,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
             <View style={styles.row}>
               <View style={styles.rowTextWrap}>
-                <Text style={styles.rowLabel}>节拍音效</Text>
-                <Text style={styles.rowSub}>关闭后静音播放，但保持节拍状态</Text>
+                <Text style={styles.rowLabel}>{t.beatSound}</Text>
+                <Text style={styles.rowSub}>{t.beatSoundSub}</Text>
               </View>
               <Switch
                 value={soundEnabled}
@@ -166,7 +183,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <View style={styles.divider} />
 
             <View style={styles.volumeSection}>
-              <Text style={styles.rowLabel}>音量</Text>
+              <Text style={styles.rowLabel}>{t.volume}</Text>
               <View style={styles.volumeSteps}>
                 {volumeSteps.map((step) => (
                   <Pressable
@@ -181,10 +198,34 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               </View>
             </View>
           </View>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>{t.language}</Text>
+            <View style={styles.chipWrap}>
+              {LANGUAGE_OPTIONS.map(({ value, labelKey }) => {
+                const active = languagePreference === value;
+                return (
+                  <Pressable
+                    key={value}
+                    style={({ pressed }) => [
+                      styles.soundChip,
+                      active && styles.soundChipActive,
+                      pressed && styles.soundChipPressed,
+                    ]}
+                    onPress={() => onLanguageChange(value)}
+                  >
+                    <Text style={[styles.soundChipLabel, active && styles.soundChipLabelActive]}>
+                      {t[labelKey] as string}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
         </ScrollView>
 
         <Pressable style={({ pressed }) => [styles.closeBtn, pressed && styles.closeBtnPressed]} onPress={onClose}>
-          <Text style={styles.closeBtnText}>完成</Text>
+          <Text style={styles.closeBtnText}>{t.done}</Text>
         </Pressable>
 
         <Text style={styles.version}>BeatMeter v1.0.0</Text>
