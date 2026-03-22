@@ -8,7 +8,7 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
-import { colors, CUSTOM_SOUND_PRESET_ID, SOUND_PRESETS } from '../constants';
+import { APP_DISPLAY_NAME, APP_VERSION, colors, CUSTOM_SOUND_PRESET_ID, SOUND_PRESETS } from '../constants';
 import { getSoundPresetI18n, type Translations, type LanguagePreference } from '../i18n';
 
 interface SettingsPanelProps {
@@ -228,7 +228,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <Text style={styles.closeBtnText}>{t.done}</Text>
         </Pressable>
 
-        <Text style={styles.version}>BeatMeter v1.0.0</Text>
+        <Text style={styles.version}>{APP_DISPLAY_NAME} {APP_VERSION}</Text>
       </View>
     </Modal>
   );

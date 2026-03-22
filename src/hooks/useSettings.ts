@@ -6,6 +6,13 @@ import type { LanguagePreference } from '../i18n';
 
 const SETTINGS_KEY = '@beatmeter_settings';
 
+export type AppModule = 'metronome' | 'fitness';
+
+export interface TrainingSessionRecord {
+  durationMs: number;
+  endedAt: string;
+}
+
 export interface Settings {
   bpm: number;
   hapticEnabled: boolean;
@@ -15,6 +22,8 @@ export interface Settings {
   customSoundUri: string | null;
   customSoundName: string | null;
   languagePreference: LanguagePreference;
+  activeModule: AppModule;
+  recentTraining: TrainingSessionRecord | null;
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -26,6 +35,24 @@ const DEFAULT_SETTINGS: Settings = {
   customSoundUri: null,
   customSoundName: null,
   languagePreference: 'system',
+  activeModule: 'metronome',
+  recentTraining: null,
+};
+
+const sanitizeSettings = (parsed: Partial<Settings>): Settings => {
+  const activeModule = parsed.activeModule === 'fitness' ? 'fitness' : 'metronome';
+  const recentTraining = parsed.recentTraining
+    && typeof parsed.recentTraining.durationMs === 'number'
+    && typeof parsed.recentTraining.endedAt === 'string'
+    ? parsed.recentTraining
+    : null;
+
+  return {
+    ...DEFAULT_SETTINGS,
+    ...parsed,
+    activeModule,
+    recentTraining,
+  };
 };
 
 export function useSettings() {
@@ -38,7 +65,7 @@ export function useSettings() {
         const stored = await AsyncStorage.getItem(SETTINGS_KEY);
         if (stored) {
           const parsed = JSON.parse(stored) as Partial<Settings>;
-          setSettings({ ...DEFAULT_SETTINGS, ...parsed });
+          setSettings(sanitizeSettings(parsed));
         }
       } catch (err) {
         console.warn('[useSettings] load failed:', err);
@@ -59,33 +86,14 @@ export function useSettings() {
   }, []);
 
   const setBpm = useCallback((bpm: number) => saveSettings({ bpm }), [saveSettings]);
-  const setHapticEnabled = useCallback(
-    (hapticEnabled: boolean) => saveSettings({ hapticEnabled }),
-    [saveSettings],
-  );
-  const setSoundEnabled = useCallback(
-    (soundEnabled: boolean) => saveSettings({ soundEnabled }),
-    [saveSettings],
-  );
-  const setVolume = useCallback(
-    (volume: number) => saveSettings({ volume: Math.max(0, Math.min(6, volume)) }),
-    [saveSettings],
-  );
-  const setSoundPresetId = useCallback(
-    (soundPresetId: string) => saveSettings({ soundPresetId }),
-    [saveSettings],
-  );
-  const setCustomSound = useCallback(
-    (customSoundUri: string | null, customSoundName: string | null) => saveSettings({
-      customSoundUri,
-      customSoundName,
-    }),
-    [saveSettings],
-  );
-  const setLanguagePreference = useCallback(
-    (languagePreference: LanguagePreference) => saveSettings({ languagePreference }),
-    [saveSettings],
-  );
+  const setHapticEnabled = useCallback((hapticEnabled: boolean) => saveSettings({ hapticEnabled }), [saveSettings]);
+  const setSoundEnabled = useCallback((soundEnabled: boolean) => saveSettings({ soundEnabled }), [saveSettings]);
+  const setVolume = useCallback((volume: number) => saveSettings({ volume: Math.max(0, Math.min(1, volume)) }), [saveSettings]);
+  const setSoundPresetId = useCallback((soundPresetId: string) => saveSettings({ soundPresetId }), [saveSettings]);
+  const setCustomSound = useCallback((customSoundUri: string | null, customSoundName: string | null) => saveSettings({ customSoundUri, customSoundName }), [saveSettings]);
+  const setLanguagePreference = useCallback((languagePreference: LanguagePreference) => saveSettings({ languagePreference }), [saveSettings]);
+  const setActiveModule = useCallback((activeModule: AppModule) => saveSettings({ activeModule }), [saveSettings]);
+  const setRecentTraining = useCallback((recentTraining: TrainingSessionRecord | null) => saveSettings({ recentTraining }), [saveSettings]);
 
   return {
     settings,
@@ -97,6 +105,8 @@ export function useSettings() {
     setSoundPresetId,
     setCustomSound,
     setLanguagePreference,
+    setActiveModule,
+    setRecentTraining,
     saveSettings,
   };
 }
